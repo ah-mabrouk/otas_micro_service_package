@@ -1,0 +1,40 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('micro_service_maps', function (Blueprint $table) {
+            $table->id();
+
+            $table->string('name')->unique();
+            $table->string('display_name')->nullable()->unique();
+
+            $table->string('origin');
+
+            $table->string('source_key')->nullable();
+            $table->string('destination_key')->nullable();
+
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('micro_service_maps');
+    }
+};

@@ -1,0 +1,38 @@
+{
+    "name": "solutionplus/microservice",
+    "description": "a laravel package for dealing with specific case of micro-services connection so, it doesn't suit all needs or handle all connection cases",
+    "type": "library",
+    "license": "PRIVATE",
+    "authors": [
+        {
+            "name": "Ahmed Mabrouk",
+            "email": "a.mabrouk@solutionplus.net"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "laravel/framework": "^8|^9"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^6.0-dev"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Solutionplus\\MicroService\\MicroServiceServiceProvider"
+            ]
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Solutionplus\\MicroService\\": "src/",
+            "Database\\Factories\\": "src/database/factories/",
+            "Database\\Seeders\\": "src/database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    }
+}
