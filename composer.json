@@ -2,7 +2,7 @@
     "name": "solutionplus/microservice",
     "description": "a laravel package for dealing with specific case of micro-services connection so, it doesn't suit all needs or handle all connection cases",
     "type": "library",
-    "license": "PRIVATE",
+    "license": "proprietary",
     "authors": [
         {
             "name": "Ahmed Mabrouk",
