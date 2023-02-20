@@ -21,7 +21,7 @@ php artisan ms:install
 php artisan migrate
 ```
 
-* Then apply `micro-service` middleware on the routes group you will create to communicate with other micro-services
+* Then apply `micro-service` middleware on the routes group you will create to communicate with other microservices
 
 ```php
 # In micro-service project routes file
@@ -31,7 +31,7 @@ Route::group([
         'micro-service',
     ]
 ], function () {
-    // routes communicates with other micro-services goes here
+    // routes communicates with other microservices goes here
 });
 ```
 
