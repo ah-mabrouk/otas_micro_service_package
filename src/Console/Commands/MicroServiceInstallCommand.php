@@ -107,7 +107,7 @@ class MicroServiceInstallCommand extends Command
     private function setPackageEnvKeys()
     {
         for ($i = 0; $i < \count($this->envKeys); $i++) {
-            $this->envContent = $this->setPackageEnvSingleKey($this->envKeys[$i], $this->envKeys[$i] === 'GLOBAL_PROJECT_SECRET' ? '' : generate_serial(16));
+            $this->envContent = $this->setPackageEnvSingleKey($this->envKeys[$i], $this->envKeys[$i] === 'GLOBAL_PROJECT_SECRET' ? '' : generate_local_secret(16));
         }
         return \file_put_contents($this->envFile, $this->envContent);
     }

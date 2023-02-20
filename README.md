@@ -13,7 +13,13 @@ You can install the package using composer.
 
 ```bash
 composer install solutionplus/microservice
+
+php artisan ms:install
+
+php artisan migrate
 ```
+
+### Then apply `micro-service` middleware on the routes group you will create to communicate with other micro-services
 
 #### Note:
 > UNDER CONSTRUCTION.

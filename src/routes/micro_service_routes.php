@@ -7,8 +7,13 @@ Route::group([
         'micro-service',
     ]
 ], function () {
-    Route::apiResource('permission-groups', PermissionGroupController::class);
-    Route::apiResource('permissions', PermissionController::class, ['except', ['store', 'destroy']]);
+    // require_once base_path('routes/api.php');
 });
 
-Route::apiResource('roles', RoleController::class)->middleware('micro-service-establish-connection');
+Route::group([
+    'middleware' => [
+        'micro-service-establish-connection',
+    ]
+], function () {
+    Route::apiResource('micro-services', MicroServiceController::class, ['only' => ['store']]);
+});
