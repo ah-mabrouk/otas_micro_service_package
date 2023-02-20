@@ -20,4 +20,4 @@ composer install solutionplus/microservice
 
 ## License
 
-Solutionplus/MicroService package is limited and private software belongs to Solutionplus.net company.
+Solutionplus/MicroService package is limited and proprietary software belongs to Solutionplus.net company.
