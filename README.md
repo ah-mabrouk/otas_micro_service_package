@@ -9,9 +9,11 @@ solutionplus/microservice is a Laravel package for dealing with specific case of
 
 ## Installation
 
-You can install the package using composer.
+You can install the package using composer
 
 ```bash
+# cli commands
+
 composer install solutionplus/microservice
 
 php artisan ms:install
@@ -22,6 +24,8 @@ php artisan migrate
 * Then apply `micro-service` middleware on the routes group you will create to communicate with other micro-services
 
 ```php
+# In micro-service project routes file
+
 Route::group([
     'middleware' => [
         'micro-service',
