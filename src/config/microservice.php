@@ -27,7 +27,6 @@ return [
     |
     | NOTE: The env value is already auto generated after running
     | the command "php artisan ms:install"
-    |
     */
 
     'local_secret' => env('LOCAL_SECRET', ''),
