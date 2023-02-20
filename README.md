@@ -21,6 +21,16 @@ php artisan migrate
 
 * Then apply `micro-service` middleware on the routes group you will create to communicate with other micro-services
 
+```bash
+Route::group([
+    'middleware' => [
+        'micro-service',
+    ]
+], function () {
+    // routes communicates with other micro-services goes here
+});
+```
+
 #### Note:
 > UNDER CONSTRUCTION.
 
