@@ -22,7 +22,7 @@ php artisan migrate
 ```
 
 #### Important:
-> Don't forget to modify the added env values keys then run:
+> Don't forget to modify the added env key `GLOBAL_PROJECT_SECRET` to exactly match all other microservices projects `GLOBAL_PROJECT_SECRET` then run:
 
 ```bash
 php artisan config:cache
