@@ -21,6 +21,13 @@ php artisan ms:install
 php artisan migrate
 ```
 
+#### Important:
+> Don't forget to modify the added env values keys then run:
+
+```bash
+php artisan config:cache
+```
+
 * Then apply `micro-service` middleware on the routes group you will create to communicate with other microservices
 
 ```php
