@@ -3,6 +3,7 @@
 namespace Solutionplus\MicroService\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Solutionplus\MicroService\Helpers\MsHttp;
 use Solutionplus\MicroService\Models\MicroServiceMap;
 
 class MicroServiceMapStoreRequest extends FormRequest
@@ -35,12 +36,6 @@ class MicroServiceMapStoreRequest extends FormRequest
 
     public function storeMicroServiceMap()
     {
-        $this->microServiceMap = MicroServiceMap::create([
-            'name' => $this->name,
-            'display_name' => \ucfirst(\str_replace(['_', '-'], ' ', $this->name)),
-            'origin' => $this->origin,
-            'destination_key' => $this->secret,
-        ]);
-        return $this->microServiceMap->refresh();
+        return MsHttp::addNewMicroService($this->name, $this->origin, $this->secret);
     }
 }

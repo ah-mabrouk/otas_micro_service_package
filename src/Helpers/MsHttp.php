@@ -45,7 +45,10 @@ class MsHttp
             'origin' => self::origin(),
             'secret' => config('microservice.local_secret'),
         ];
-        $response = self::send('post', $microserviceName, 'test', $data, $origin);
+        $response = self::send('post', $microserviceName, 'micro-services', $data, $origin);
+        if (isset($response->secret)) {
+            self::addNewMicroService($microserviceName, $origin, $response->secret);
+        }
         return $response;
     }
 
@@ -107,7 +110,20 @@ class MsHttp
         $establish = $origin != '';
         $response = Http::withHeaders($http->headers($method))
             ->$method("{$http->protocol}{$http->microservice->origin}/api/{$uri}", $http->encodeRequestBody($data, $establish));
-        return $response->json();
+        $response = $response->json();
+        return $response;
+    }
+
+    public static function addNewMicroService(string $microserviceName, string $origin, string $destinationKey)
+    {
+        $microService = MicroServiceMap::create([
+            'name' => $microserviceName,
+            'display_name' => \ucfirst(\str_replace(['_', '-'], ' ', $microserviceName)),
+            'origin' => $origin,
+            'destination_key' => $destinationKey,
+        ]);
+        self::cache(true);
+        return $microService;
     }
 
     protected function headers(string $method = '')

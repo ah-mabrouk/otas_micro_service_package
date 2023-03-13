@@ -3,6 +3,7 @@
 namespace Solutionplus\MicroService\Http\Controllers;
 
 use Exception;
+use Solutionplus\MicroService\Helpers\MsHttp;
 use Solutionplus\MicroService\Http\Requests\MicroServiceMapStoreRequest;
 
 class MicroServiceMapController extends Controller
