@@ -63,6 +63,6 @@ return [
     |
     */
 
-    'secure_requests_only' => env('SECURE_REQUESTS_ONLY'),
+    'secure_requests_only' => env('MS_SECURE_REQUESTS_ONLY'),
 
 ];

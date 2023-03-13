@@ -19,8 +19,6 @@ You can install the package using composer
 composer require solutionplus/microservice
 
 php artisan ms:install
-
-php artisan migrate
 ```
 
 #### Important:
