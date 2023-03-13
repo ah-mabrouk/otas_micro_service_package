@@ -16,7 +16,7 @@ You can install the package using composer
 ```bash
 # cli commands
 
-composer install solutionplus/microservice
+composer require solutionplus/microservice
 
 php artisan ms:install
 
