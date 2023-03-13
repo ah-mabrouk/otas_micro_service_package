@@ -40,7 +40,7 @@ class MicroServiceInstallCommand extends Command
         $this->envContent = \file_get_contents($this->envFile);
         $this->envContent .= "\n";
         $this->envKeys = [
-            'MS_SECURE_REQUESTS_ONLY' => $this->appendToEnvContent('MS_SECURE_REQUESTS_ONLY', 'true'),
+            'MS_SECURE_REQUESTS_ONLY' => $this->appendToEnvContent('MS_SECURE_REQUESTS_ONLY', '"true"'),
             'GLOBAL_PROJECT_SECRET' => $this->appendToEnvContent('GLOBAL_PROJECT_SECRET', ''),
             'LOCAL_SECRET' => $this->appendToEnvContent('LOCAL_SECRET', generate_local_secret(16)),
         ];
