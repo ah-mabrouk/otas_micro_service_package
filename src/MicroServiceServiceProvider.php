@@ -74,7 +74,7 @@ class MicroServiceServiceProvider extends ServiceProvider
     {
         return [
             'namespace' => 'Solutionplus\MicroService\Http\Controllers',
-            'prefix' => config('microservice.package_routes_prefix'),
+            // 'prefix' => config('microservice.package_routes_prefix'),
         ];
     }
 

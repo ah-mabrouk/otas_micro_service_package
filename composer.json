@@ -1,6 +1,6 @@
 {
     "name": "solutionplus/microservice",
-    "description": "a laravel package for dealing with specific case of micro-services connection so, it doesn't suit all needs or handle all connection cases",
+    "description": "a laravel package to deal with specific case of micro-services connection. So, it doesn't suit all needs or handle all connection cases",
     "type": "library",
     "license": "proprietary",
     "authors": [
@@ -11,7 +11,7 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "laravel/framework": "^8|^9"
+        "laravel/framework": "^8|^9|^10"
     },
     "require-dev": {
         "orchestra/testbench": "^6.0-dev"

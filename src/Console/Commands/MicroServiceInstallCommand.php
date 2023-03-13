@@ -19,10 +19,7 @@ class MicroServiceInstallCommand extends Command
      */
     protected $signature = 'ms:install';
 
-    protected $envKeys = [
-        'GLOBAL_PROJECT_SECRET',
-        'LOCAL_SECRET',
-    ];
+    protected $envKeys;
 
     /**
      * The console command description.
@@ -41,6 +38,12 @@ class MicroServiceInstallCommand extends Command
         parent::__construct();
         $this->envFile = App::environmentFilePath();
         $this->envContent = \file_get_contents($this->envFile);
+        $this->envContent .= "\n";
+        $this->envKeys = [
+            'GLOBAL_PROJECT_SECRET' => $this->appendToEnvContent('GLOBAL_PROJECT_SECRET', ''),
+            'LOCAL_SECRET' => $this->appendToEnvContent('LOCAL_SECRET', generate_local_secret(16)),
+            'SECURE_REQUESTS_ONLY' => $this->appendToEnvContent('SECURE_REQUESTS_ONLY', 'true'),
+        ];
     }
 
     /**
@@ -65,9 +68,9 @@ class MicroServiceInstallCommand extends Command
             }
         }
 
-        $this->info('Addint package .env keys');
-        $this->setPackageEnvKeys();
-        $this->info("The keys[" . \implode(', ', $this->envKeys). "] has added to project .env file");
+        $this->info('Adding package .env keys');
+        \file_put_contents($this->envFile, $this->envContent);
+        $this->info("The keys[" . \implode(', ', \array_keys($this->envKeys)). "] has added to project .env file");
 
         $this->info('Caching configs...');
         $this->call('config:cache');
@@ -85,10 +88,7 @@ class MicroServiceInstallCommand extends Command
 
     private function shouldOverwriteConfig()
     {
-        return $this->confirm(
-            'Config file already exists. Do you want to overwrite it?',
-            false
-        );
+        return $this->confirm('Config file already exists. Do you want to overwrite it?', false);
     }
 
     private function publishConfiguration($forcePublish = false)
@@ -104,23 +104,15 @@ class MicroServiceInstallCommand extends Command
        $this->call('vendor:publish', $params);
     }
 
-    private function setPackageEnvKeys()
-    {
-        for ($i = 0; $i < \count($this->envKeys); $i++) {
-            $this->envContent = $this->setPackageEnvSingleKey($this->envKeys[$i], $this->envKeys[$i] === 'GLOBAL_PROJECT_SECRET' ? '' : generate_local_secret(16));
-        }
-        return \file_put_contents($this->envFile, $this->envContent);
-    }
-
-    private function setPackageEnvSingleKey(string $envKey, string $envKeyValue = '')
+    private function appendToEnvContent(string $envKey, string $envKeyValue = '')
     {
         $keyPosition = \strpos($this->envContent, "{$envKey}=");
         $endOfLinePosition = \strpos($this->envContent, "\n", $keyPosition);
         $oldValue = \substr($this->envContent, $keyPosition, $endOfLinePosition - $keyPosition);
-        $envKeyValue = $envKey === 'GLOBAL_PROJECT_SECRET' && $keyPosition ? \explode('=', $oldValue)[1] : $envKeyValue;
-
-        return ($keyPosition && $endOfLinePosition && $oldValue)
-                    ? \str_replace($oldValue, "{$envKey}={$envKeyValue}", $this->envContent)
-                    : $this->envContent . "{$envKey}={$envKeyValue}\n";
+        $envKeyValue = $keyPosition ? \explode('=', $oldValue)[1] : $envKeyValue;
+        $this->envContent .= "\n";
+        $this->envContent = ($keyPosition && $endOfLinePosition && $oldValue)
+                            ? \str_replace($oldValue, "{$envKey}={$envKeyValue}", $this->envContent)
+                            : $this->envContent . "{$envKey}={$envKeyValue}\n";
     }
 }

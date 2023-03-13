@@ -9,7 +9,7 @@ use Solutionplus\MicroService\Http\Requests\RoleStoreRequest;
 use Solutionplus\MicroService\Http\Requests\RoleUpdateRequest;
 use Solutionplus\MicroService\Http\Resources\RoleSimpleResource;
 
-class RoleController extends Controller
+class MicroServiceMapController extends Controller
 {
     public function __construct()
     {

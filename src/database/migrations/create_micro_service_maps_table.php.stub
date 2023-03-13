@@ -21,7 +21,6 @@ return new class extends Migration
 
             $table->string('origin');
 
-            $table->string('source_key')->nullable();
             $table->string('destination_key')->nullable();
 
             $table->timestamps();

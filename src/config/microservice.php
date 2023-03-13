@@ -3,6 +3,23 @@
 return [
     /*
     |--------------------------------------------------------------------------
+    | Micro-service name
+    |--------------------------------------------------------------------------
+    |
+    | Here you must set the current service name which will be added
+    | to other services communication list. You should be careful
+    | and not use any special characters or spaces except
+    | dashes or underscores only [-,_] otherwise it
+    | may lead to unexpected behavior
+    |
+    | Ex: 'tourism_service'
+    |
+    */
+
+    'micro_service_name' => '',
+
+    /*
+    |--------------------------------------------------------------------------
     | Project secret
     |--------------------------------------------------------------------------
     |
@@ -13,7 +30,7 @@ return [
     |
     */
 
-    'project_secret' => env('GLOBAL_PROJECT_SECRET', ''),
+    'project_secret' => env('GLOBAL_PROJECT_SECRET'),
 
     /*
     |--------------------------------------------------------------------------
@@ -27,8 +44,25 @@ return [
     |
     | NOTE: The env value is already auto generated after running
     | the command "php artisan ms:install"
+    |
     */
 
-    'local_secret' => env('LOCAL_SECRET', ''),
+    'local_secret' => env('LOCAL_SECRET'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | secure requests only
+    |--------------------------------------------------------------------------
+    |
+    | Here you should set boolean value to "false" if you need to receive insecure
+    | request which mean you will receive it as an (http) request. If this
+    | value is set to "true" then you will receive only (https) requests.
+    |
+    | NOTE: The default value for this key is "true". you may need to
+    | set this value to "false" if you need to test it locally.
+    |
+    */
+
+    'secure_requests_only' => env('SECURE_REQUESTS_ONLY'),
 
 ];

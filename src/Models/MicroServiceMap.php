@@ -16,7 +16,6 @@ class MicroServiceMap extends Model
 
         'origin',
 
-        'source_key',
         'destination_key',
 
         'created_at',

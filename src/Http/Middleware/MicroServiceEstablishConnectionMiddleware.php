@@ -4,7 +4,7 @@ namespace Solutionplus\MicroService\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Solutionplus\MicroService\Models\MicroServiceMap;
+use Solutionplus\MicroService\Helpers\MsHttp;
 
 class MicroServiceEstablishConnectionMiddleware
 {
@@ -17,7 +17,8 @@ class MicroServiceEstablishConnectionMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        // ckeck by project_secret
+        MsHttp::decodeRequest(true);
 
+        return $next($request);
     }
 }

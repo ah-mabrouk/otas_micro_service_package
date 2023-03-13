@@ -17,13 +17,12 @@ class MicroServiceMapResource extends JsonResource
         return [
             'id' => $this->id,
 
-            'display_name' => $this->display_name,
             'name' => $this->name,
+            'display_name' => $this->display_name,
 
             'origin' => $this->origin,
 
-            'source_key' => $this->source_key,
-            'destination_key' => $this->destination_key,
+            // 'destination_key' => $this->destination_key,
 
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
