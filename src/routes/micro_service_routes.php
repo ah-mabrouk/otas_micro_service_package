@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 Route::group([
+    'prefix' => 'api',
     'middleware' => [
         'micro-service-establish-connection',
     ]
