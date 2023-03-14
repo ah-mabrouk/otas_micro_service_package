@@ -40,6 +40,7 @@ class MsHttp
     {
         if (self::cache()->where('name', $microserviceName)->first()) abort(503, 'service name already exists');
         if (config('microservice.micro_service_name') == '') abort(503, 'current service name is not set yet in "microservice" config file');
+        if (config('microservice.project_secret') == '') abort(503, 'project secret is not set yet in "microservice" config file');
         $data = [
             'name' => config('microservice.micro_service_name'),
             'origin' => self::origin(),
