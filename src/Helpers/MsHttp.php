@@ -112,7 +112,7 @@ class MsHttp
         $response = Http::withHeaders($http->headers($method))
             ->$method("{$http->protocol}{$http->microservice->origin}/api/{$uri}", $http->encodeRequestBody($data, $establish));
         $response = $response->json();
-        return $response;
+        return (object) $response;
     }
 
     public static function addNewMicroService(string $microserviceName, string $origin, string $destinationKey)

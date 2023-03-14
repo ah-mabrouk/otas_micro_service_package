@@ -4,7 +4,6 @@ namespace Solutionplus\MicroService\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Solutionplus\MicroService\Helpers\MsHttp;
-use Solutionplus\MicroService\Models\MicroServiceMap;
 
 class MicroServiceMapStoreRequest extends FormRequest
 {
@@ -30,7 +29,7 @@ class MicroServiceMapStoreRequest extends FormRequest
         return [
             'name' => 'required|string|alpha_dash:ascii|min:3|max:190|unique:micro_service_maps,name',
             'origin' => 'required|string|min:6|max:190',
-            'secret' => 'required|string|alpha_num:ascii|size:16',
+            'secret' => 'required|string|alpha_num:ascii|size:16|unique:micro_service_maps,destination_key',
         ];
     }
 

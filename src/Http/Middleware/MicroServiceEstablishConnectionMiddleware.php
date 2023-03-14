@@ -17,7 +17,7 @@ class MicroServiceEstablishConnectionMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        MsHttp::decodeRequest(true);
+        if (! MsHttp::decodeRequest(true)) abort(405, 'forbidden action');
 
         return $next($request);
     }
