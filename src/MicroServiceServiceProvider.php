@@ -11,9 +11,11 @@ use Solutionplus\MicroService\Http\Middleware\MicroServiceEstablishConnectionMid
 
 class MicroServiceServiceProvider extends ServiceProvider
 {
-    private $packageMigrations = [
+    private array $packageMigrations = [
         'create_micro_service_maps_table',
     ];
+
+    private string $migrationSubFolder;
 
     /**
      * Register services.
@@ -35,6 +37,7 @@ class MicroServiceServiceProvider extends ServiceProvider
         require_once __DIR__ . '/Helpers/MicroServiceHelperFunctions.php';
 
         $this->registerRoutes();
+        $this->migrationSubFolder = config('microservice.migration_sub_folder') . '/';
 
         if ($this->app->runningInConsole()) {
 
@@ -80,10 +83,9 @@ class MicroServiceServiceProvider extends ServiceProvider
     protected function migrationFiles()
     {
         $migrationFiles = [];
-
         foreach ($this->packageMigrations as $migrationName) {
             if (! $this->migrationExists($migrationName)) {
-                $migrationFiles[__DIR__ . "/database/migrations/{$migrationName}.php.stub"] = database_path('migrations/' . date('Y_m_d_His', time()) . "_{$migrationName}.php");
+                $migrationFiles[__DIR__ . "/database/migrations/{$migrationName}.php.stub"] = database_path("migrations/{$this->migrationSubFolder}" . date('Y_m_d_His', time()) . "_{$migrationName}.php");
             }
         }
         return $migrationFiles;
@@ -91,7 +93,7 @@ class MicroServiceServiceProvider extends ServiceProvider
 
     protected function migrationExists($migrationName)
     {
-        $path = database_path('migrations/');
+        $path = database_path("migrations/{$this->migrationSubFolder}");
         $files = scandir($path);
         $pos = false;
         foreach ($files as &$value) {

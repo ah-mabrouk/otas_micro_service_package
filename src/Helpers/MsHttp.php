@@ -91,7 +91,7 @@ class MsHttp
             if ($force) {
                 self::forgetCache();
                 Cache::rememberForever('micro-services', function () {
-                    return MicroServiceMap::get();
+                    return MicroServiceMap::connection(config('microservice.db_connection_name') ?? config('database.default'))->get();
                 });
             }
             return Cache::has('micro-services') ? Cache::get('micro-services') : self::cache(true);
@@ -117,7 +117,7 @@ class MsHttp
 
     public static function addNewMicroService(string $microserviceName, string $origin, string $destinationKey)
     {
-        $microService = MicroServiceMap::create([
+        $microService = MicroServiceMap::connaction(config('microservice.db_connection_name') ?? config('database.default'))->create([
             'name' => $microserviceName,
             'display_name' => \ucfirst(\str_replace(['_', '-'], ' ', $microserviceName)),
             'origin' => $origin,

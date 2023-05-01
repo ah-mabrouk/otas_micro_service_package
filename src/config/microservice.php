@@ -65,4 +65,35 @@ return [
 
     'secure_requests_only' => env('MS_SECURE_REQUESTS_ONLY'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | migration sub folder
+    |--------------------------------------------------------------------------
+    |
+    | Here you should set string value to match the database which will contain
+    | the microservice migration files if it exists in nested directorey.
+    | IF this value is set to an empty string then the microservice
+    | migration file will exists in the same default migration
+    | directory.
+    |
+    */
+
+    'migration_sub_folder' => '',
+
+    /*
+    |--------------------------------------------------------------------------
+    | DB connection name
+    |--------------------------------------------------------------------------
+    |
+    | Here you should set string value to match the database name which will contain the microservice
+    | data if you have multiple databases in your project. IF this value is set to an empty string
+    | then the microservice database connection name will be set to config('database.default').
+    |
+    | NOTE: If you gave a custom string value here then you need to make sure that you
+    | have the needed configuration set in laravel project "database" config file.
+    |
+    */
+
+    'db_connection_name' => '',
+
 ];

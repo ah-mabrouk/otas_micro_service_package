@@ -3,6 +3,7 @@
 namespace Solutionplus\MicroService\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\File;
 
@@ -76,7 +77,10 @@ class MicroServiceInstallCommand extends Command
         $this->call('config:cache');
 
         $this->info('Running migrate command...');
+        $currentConnectionDriver = DB::connection()->getPdo()?->getAttribute(\PDO::ATTR_DRIVER_NAME) ?? config('database.default');
+        if (config('microservice.db_connection_name') != '') DB::setDefaultConnection(config('microservice.db_connection_name'));
         $this->call('migrate');
+        if (DB::connection()->getPdo()?->getAttribute(\PDO::ATTR_DRIVER_NAME) != $currentConnectionDriver) DB::setDefaultConnection($currentConnectionDriver);
 
         return Command::SUCCESS;
     }
