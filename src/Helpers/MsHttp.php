@@ -15,6 +15,18 @@ class MsHttp
     public $microservice;
     public $microserviceName;
 
+    protected function __construct(string $microserviceName, string $origin = '')
+    {
+        $this->cipher = 'aes-256-cbc';
+        $this->microserviceName = $microserviceName;
+        $this->microservice = $origin == '' ? $this->destinationMicroService($microserviceName) : new MicroServiceMap([
+            'name' => \strtolower($microserviceName),
+            'display_name' => $microserviceName,
+            'origin' => $origin,
+        ]);
+        $this->protocol = $this->protocol();
+    }
+
     public static function get(string $microserviceName, string $uri, array $params = [])
     {
         return self::send('get', $microserviceName, $uri, $params);
@@ -53,16 +65,16 @@ class MsHttp
         return $response;
     }
 
-    protected function __construct(string $microserviceName, string $origin = '')
+    protected static function send(string $method, string $microserviceName, string $uri, array $data = [], string $origin = '')
     {
-        $this->cipher = 'aes-256-cbc';
-        $this->microserviceName = $microserviceName;
-        $this->microservice = $origin == '' ? $this->destinationMicroService($microserviceName) : new MicroServiceMap([
-            'name' => \strtolower($microserviceName),
-            'display_name' => $microserviceName,
-            'origin' => $origin,
-        ]);
-        $this->protocol = $this->protocol();
+        $http = new self($microserviceName, $origin);
+        $establish = $origin != '';
+        $response = Http::withHeaders($http->headers($method))->$method(
+            "{$http->protocol}{$http->microservice->origin}/api/{$uri}",
+                $http->encodeRequestBody($data, $establish)
+        );
+        $response = $response->json();
+        return (object) $response;
     }
 
     protected static function destinationMicroService(string $microserviceName)
@@ -96,23 +108,13 @@ class MsHttp
             }
             return Cache::has('micro-services') ? Cache::get('micro-services') : self::cache(true);
         } catch (Exception $exception) {
-            abort(503, 'micro-service package is not installed yet. please run "php artisan ms:install" command');
+            abort(503, 'micro-service package is not installed yet. please run "php artisan vendor:publish" and "php artisan ms:install" commands');
         }
     }
 
     protected static function forgetCache() : void
     {
         Cache::forget('micro-services');
-    }
-
-    protected static function send(string $method, string $microserviceName, string $uri, array $data = [], string $origin = '')
-    {
-        $http = new self($microserviceName, $origin);
-        $establish = $origin != '';
-        $response = Http::withHeaders($http->headers($method))
-            ->$method("{$http->protocol}{$http->microservice->origin}/api/{$uri}", $http->encodeRequestBody($data, $establish));
-        $response = $response->json();
-        return (object) $response;
     }
 
     public static function addNewMicroService(string $microserviceName, string $origin, string $destinationKey)
