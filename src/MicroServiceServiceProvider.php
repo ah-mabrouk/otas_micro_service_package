@@ -43,6 +43,7 @@ class MicroServiceServiceProvider extends ServiceProvider
 
             $this->commands([
                 MicroServiceInstallCommand::class,
+                MicroServiceEstablishCommand::class,
             ]);
 
             /**
