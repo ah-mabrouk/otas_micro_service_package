@@ -78,7 +78,7 @@ return [
     |
     */
 
-    'migration_sub_folder' => '',
+    'migration_sub_folder' => 'microservice/',
 
     /*
     |--------------------------------------------------------------------------

@@ -37,7 +37,7 @@ class MicroServiceServiceProvider extends ServiceProvider
         require_once __DIR__ . '/Helpers/MicroServiceHelperFunctions.php';
 
         $this->registerRoutes();
-        $this->migrationSubFolder = config('microservice.migration_sub_folder') . '/';
+        $this->migrationSubFolder = config('microservice.migration_sub_folder') != '' ? config('microservice.migration_sub_folder') : 'microservice/';
 
         if ($this->app->runningInConsole()) {
 
@@ -50,7 +50,11 @@ class MicroServiceServiceProvider extends ServiceProvider
              */
             $migrationFiles = $this->migrationFiles();
             if (\count($migrationFiles) > 0) {
-                $this->publishes($migrationFiles, 'micro_service_migrations');
+                foreach ($migrationFiles as $packagePath => $migrationPath) {
+                    $this->publishes([
+                        $packagePath => $migrationPath,
+                    ], 'micro_service_migrations');
+                }
             }
 
             /**
@@ -94,6 +98,8 @@ class MicroServiceServiceProvider extends ServiceProvider
     protected function migrationExists($migrationName)
     {
         $path = database_path("migrations/{$this->migrationSubFolder}");
+        if (! \is_dir($path)) \mkdir($path, 0777, true);
+
         $files = scandir($path);
         $pos = false;
         foreach ($files as &$value) {

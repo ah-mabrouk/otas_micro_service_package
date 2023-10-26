@@ -56,18 +56,7 @@ class MicroServiceInstallCommand extends Command
     {
         $this->info('Publishing configuration...');
 
-        if (! $this->configExists('microservice.php')) {
-            $this->publishConfiguration();
-            $this->info('MicroService configuration file is published');
-        } else {
-            if ($this->shouldOverwriteConfig()) {
-                $this->info('Overwriting configuration file...');
-                $this->publishConfiguration(true);
-                $this->info('MicroService configuration file is been overwritten');
-            } else {
-                $this->info('Existing configuration is not overwritten for some reason');
-            }
-        }
+        $this->publishConfiguration();
 
         $this->info('Adding package .env keys');
         \file_put_contents($this->envFile, $this->envContent);
@@ -77,35 +66,10 @@ class MicroServiceInstallCommand extends Command
         $this->call('config:cache');
 
         $this->info('Running migrate command...');
-        $currentConnectionDriver = DB::connection()->getPdo()?->getAttribute(\PDO::ATTR_DRIVER_NAME) ?? config('database.default');
-        if (config('microservice.db_connection_name') != '') DB::setDefaultConnection(config('microservice.db_connection_name'));
-        $this->call('migrate');
-        if (DB::connection()->getPdo()?->getAttribute(\PDO::ATTR_DRIVER_NAME) != $currentConnectionDriver) DB::setDefaultConnection($currentConnectionDriver);
+
+        $this->runMigration();
 
         return Command::SUCCESS;
-    }
-
-    private function configExists($fileName)
-    {
-        return File::exists(config_path($fileName));
-    }
-
-    private function shouldOverwriteConfig()
-    {
-        return $this->confirm('Config file already exists. Do you want to overwrite it?', false);
-    }
-
-    private function publishConfiguration($forcePublish = false)
-    {
-        $params = [
-            '--provider' => 'Solutionplus\MicroService\MicroServiceServiceProvider',
-        ];
-
-        if ($forcePublish === true) {
-            $params['--force'] = true;
-        }
-
-       $this->call('vendor:publish', $params);
     }
 
     private function appendToEnvContent(string $envKey, string $envKeyValue = '')
@@ -114,9 +78,48 @@ class MicroServiceInstallCommand extends Command
         $endOfLinePosition = \strpos($this->envContent, "\n", $keyPosition);
         $oldValue = \substr($this->envContent, $keyPosition, $endOfLinePosition - $keyPosition);
         $envKeyValue = $keyPosition ? \explode('=', $oldValue)[1] : $envKeyValue;
-        $this->envContent .= "\n";
         $this->envContent = ($keyPosition && $endOfLinePosition && $oldValue)
                             ? \str_replace($oldValue, "{$envKey}={$envKeyValue}", $this->envContent)
                             : $this->envContent . "{$envKey}={$envKeyValue}\n";
+    }
+
+    private function publishConfiguration()
+    {
+        $finishingMessage = 'MicroService configuration file is published';
+        $params = ['--provider' => 'Solutionplus\MicroService\MicroServiceServiceProvider'];
+
+        if (File::exists(config_path('microservice.php'))) {
+            if ($this->confirm('Config file already exists. Do you want to overwrite it?', false)) {
+                $params['--force'] = true;
+                $finishingMessage = 'MicroService configuration file is been overwritten';
+                $this->info('Overwriting configuration file...');
+            }
+        }
+        $this->call('vendor:publish', $params);
+        $this->info($finishingMessage);
+    }
+
+    private function runMigration()
+    {
+        $this->warn('Make sure to set package configuration before migration or you will need to run this command again');
+        if (! $this->confirm('Do you want to run migrate command now?', false)) return;
+
+        $configDatabaseConnectionDriver = config('microservice.db_connection_name');
+        if ($configDatabaseConnectionDriver == '') {
+            $this->call('migrate');
+            return;
+        }
+
+        $currentConnectionDriver = DB::connection()->getPdo()?->getAttribute(\PDO::ATTR_DRIVER_NAME) ?? config('database.default');
+        $migrationSubFolder = config('microservice.migration_sub_folder') != '' ? config('microservice.migration_sub_folder') . '/' : '';
+        DB::setDefaultConnection($configDatabaseConnectionDriver);
+        $this->call(
+            'migrate',
+            [
+                '--database' => $configDatabaseConnectionDriver,
+                '--path' => "database/migrations/{$migrationSubFolder}",
+            ]
+        );
+        DB::setDefaultConnection($currentConnectionDriver);
     }
 }
