@@ -3,6 +3,7 @@
 namespace Solutionplus\MicroService\Helpers;
 
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Solutionplus\MicroService\Models\MicroServiceMap;
@@ -69,12 +70,10 @@ class MsHttp
     {
         $http = new self($microserviceName, $origin);
         $establish = $origin != '';
-        $response = Http::withHeaders($http->headers($method))->$method(
+        return Http::withHeaders($http->headers($method))->$method(
             "{$http->protocol}{$http->microservice->origin}/api/{$uri}",
                 $http->encodeRequestBody($data, $establish)
         );
-        $response = $response->json();
-        return (object) $response;
     }
 
     protected static function destinationMicroService(string $microserviceName)
@@ -103,12 +102,16 @@ class MsHttp
             if ($force) {
                 self::forgetCache();
                 Cache::rememberForever('micro-services', function () {
-                    return MicroServiceMap::connection(config('microservice.db_connection_name') ?? config('database.default'))->get();
+                    $currentDatabaseConnection = self::currentDBConnection();
+                    self::setDBConnection();
+                    $map = MicroServiceMap::get();
+                    self::setDBConnection($currentDatabaseConnection);
+                    return $map;
                 });
             }
             return Cache::has('micro-services') ? Cache::get('micro-services') : self::cache(true);
         } catch (Exception $exception) {
-            abort(503, 'micro-service package is not installed yet. please run "php artisan vendor:publish" and "php artisan ms:install" commands');
+            abort(503, 'micro-service package is not installed yet or your configuration file is not configured yet. please run "php artisan vendor:publish" and "php artisan ms:install" commands and make sure that you set config file required values');
         }
     }
 
@@ -119,12 +122,15 @@ class MsHttp
 
     public static function addNewMicroService(string $microserviceName, string $origin, string $destinationKey)
     {
-        $microService = MicroServiceMap::connaction(config('microservice.db_connection_name') ?? config('database.default'))->create([
+        $currentDatabaseConnection = self::currentDBConnection();
+        self::setDBConnection();
+        $microService = MicroServiceMap::create([
             'name' => $microserviceName,
             'display_name' => \ucfirst(\str_replace(['_', '-'], ' ', $microserviceName)),
             'origin' => $origin,
             'destination_key' => $destinationKey,
         ]);
+        self::setDBConnection($currentDatabaseConnection);
         self::cache(true);
         return $microService;
     }
@@ -185,5 +191,28 @@ class MsHttp
         } catch (Exception $exception) {
             return false;
         }
+    }
+
+    protected static function currentDBConnection()
+    {
+        return DB::connection()->getPdo()?->getAttribute(\PDO::ATTR_DRIVER_NAME) ?? config('database.default');
+    }
+
+    protected static function setDBConnection(string|null $dbConnectionName = '')
+    {
+        switch (true) {
+            case $dbConnectionName != '' :
+                break;
+            case config('microservice.db_connection_name') != '' :
+                $dbConnectionName = config('microservice.db_connection_name');
+                break;
+            case config('database.default') != '' :
+                $dbConnectionName = config('database.default');
+                break;
+            default :
+                abort(503, 'wrong database connaction name');
+        }
+        DB::purge();
+        DB::setDefaultConnection($dbConnectionName);
     }
 }
