@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Solutionplus\MicroService\Http\Middleware\MicroServiceMiddleware;
 use Solutionplus\MicroService\Console\Commands\MicroServiceInstallCommand;
+use Solutionplus\MicroService\Console\Commands\MicroServiceEstablishCommand;
 use Solutionplus\MicroService\Http\Middleware\MicroServiceEstablishConnectionMiddleware;
 
 class MicroServiceServiceProvider extends ServiceProvider
