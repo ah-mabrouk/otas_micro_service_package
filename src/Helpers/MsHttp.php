@@ -2,6 +2,7 @@
 
 namespace Solutionplus\MicroService\Helpers;
 
+use Closure;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -26,6 +27,26 @@ class MsHttp
             'origin' => $origin,
         ]);
         $this->protocol = $this->protocol();
+    }
+
+    protected static function destinationMicroService(string $microserviceName)
+    {
+        $microService = self::cache()?->where('name', $microserviceName)?->first();
+        switch (true) {
+            case (! $microService) :
+                abort(503, 'the service you try to communicate with is not exist yet in linked services list');
+            case (! $microService->origin) :
+                abort(503, 'can\'t find the selected service origin');
+            case ((! $microService->destination_key)) :
+                abort(503, 'can\'t find the selected service key');
+            default :
+                return $microService;
+        }
+    }
+
+    protected function protocol()
+    {
+        return config('microservice.secure_requests_only') == 'true' ? 'https://' : 'http://';
     }
 
     public static function get(string $microserviceName, string $uri, array $params = [])
@@ -76,61 +97,26 @@ class MsHttp
         );
     }
 
-    protected static function destinationMicroService(string $microserviceName)
-    {
-        $microService = self::cache()?->where('name', $microserviceName)?->first();
-        switch (true) {
-            case (! $microService) :
-                abort(503, 'the service you try to communicate with is not exist yet in linked services list');
-            case (! $microService->origin) :
-                abort(503, 'can\'t find the selected service origin');
-            case ((! $microService->destination_key)) :
-                abort(503, 'can\'t find the selected service key');
-            default :
-                return $microService;
-        }
-    }
+    public static function runOnConnection(Closure $closure, string $connectionName = '') {
+        $currentDatabaseConnection = MsHttp::currentDBConnection();
+        if ($connectionName == config('database.default')) return $closure();
 
-    protected function protocol()
-    {
-        return config('microservice.secure_requests_only') == 'true' ? 'https://' : 'http://';
-    }
-
-    protected static function cache(bool $force = false)
-    {
-        try {
-            if ($force) {
-                self::forgetCache();
-                Cache::rememberForever('micro-services', function () {
-                    $currentDatabaseConnection = self::currentDBConnection();
-                    self::setDBConnection();
-                    $map = MicroServiceMap::get();
-                    self::setDBConnection($currentDatabaseConnection);
-                    return $map;
-                });
-            }
-            return Cache::has('micro-services') ? Cache::get('micro-services') : self::cache(true);
-        } catch (Exception $exception) {
-            abort(503, 'micro-service package is not installed yet or your configuration file is not configured yet. please run "php artisan vendor:publish" and "php artisan ms:install" commands and make sure that you set config file required values');
-        }
-    }
-
-    protected static function forgetCache() : void
-    {
-        Cache::forget('micro-services');
+        MsHttp::setDBConnection($connectionName);
+        $resultOfClosure = $closure();
+        MsHttp::setDBConnection($currentDatabaseConnection);
+        return $resultOfClosure;
     }
 
     public static function addNewMicroService(string $microserviceName, string $origin, string $destinationKey)
     {
-        $currentDatabaseConnection = self::currentDBConnection();
-        self::setDBConnection();
-        $microService = MicroServiceMap::create([
-            'name' => $microserviceName,
-            'display_name' => \ucfirst(\str_replace(['_', '-'], ' ', $microserviceName)),
-            'origin' => $origin,
-            'destination_key' => $destinationKey,
-        ]);
-        self::setDBConnection($currentDatabaseConnection);
+        $microService = self::runOnConnection(function () use ($microserviceName, $origin, $destinationKey) {
+            return MicroServiceMap::create([
+                'name' => $microserviceName,
+                'display_name' => \ucfirst(\str_replace(['_', '-'], ' ', $microserviceName)),
+                'origin' => $origin,
+                'destination_key' => $destinationKey,
+            ]);
+        });
         self::cache(true);
         return $microService;
     }
@@ -152,6 +138,33 @@ class MsHttp
         return \str_replace(['http://', 'https://'], '', $origin);
     }
 
+    protected static function cache(bool $force = false)
+    {
+        try {
+            if ($force) {
+                self::forgetCache();
+                Cache::rememberForever('micro-services', function () {
+                    return self::runOnConnection(function () {
+                        return MicroServiceMap::get();
+                    });
+                });
+            }
+            return Cache::has('micro-services') ? Cache::get('micro-services') : self::cache(true);
+        } catch (Exception $exception) {
+            abort(503, 'micro-service package is not installed yet or your configuration file is not configured yet. please run "php artisan vendor:publish" and "php artisan ms:install" commands and make sure that you set config file required values');
+        }
+    }
+
+    protected static function forgetCache() : void
+    {
+        Cache::forget('micro-services');
+    }
+
+    public static function decodeRequest(bool $establish = false)
+    {
+        return self::decodeRequestBody($establish);
+    }
+
     protected function encodeRequestBody(array $data, bool $establish = false)
     {
         $payload = \base64_encode(\json_encode($data));
@@ -164,11 +177,6 @@ class MsHttp
                 $establish ? config('microservice.project_secret') : $this->microservice->destination_key
             ),
         ];
-    }
-
-    public static function decodeRequest(bool $establish = false)
-    {
-        return self::decodeRequestBody($establish);
     }
 
     protected static function decodeRequestBody(bool $establish = false)
