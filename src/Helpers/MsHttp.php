@@ -31,7 +31,7 @@ class MsHttp
 
     protected static function destinationMicroService(string $microserviceName)
     {
-        $microService = self::cache()?->where('name', $microserviceName)?->first();
+        $microService = self::firstMsBy('name', $microserviceName);
         switch (true) {
             case (! $microService) :
                 abort(503, 'the service you try to communicate with is not exist yet in linked services list');
@@ -72,7 +72,7 @@ class MsHttp
 
     public static function establish(string $microserviceName, string $origin)
     {
-        if (self::cache()->where('name', $microserviceName)->first()) abort(503, 'service name already exists');
+        if (self::firstMsBy('name', $microserviceName)) abort(503, 'service name already exists');
         if (config('microservice.micro_service_name') == '') abort(503, 'current service name is not set yet in "microservice" config file');
         if (config('microservice.project_secret') == '') abort(503, 'project secret is not set yet in "microservice" config file');
         $data = [
@@ -95,6 +95,11 @@ class MsHttp
             "{$http->protocol}{$http->microservice->origin}/api/{$uri}",
                 $http->encodeRequestBody($data, $establish)
         );
+    }
+
+    protected static function firstMsBy(string $columnName, string|int $value)
+    {
+        return self::cache()?->where($columnName, $value)?->first() ?? self::cache(true)?->where($columnName, $value)?->first();
     }
 
     public static function runOnConnection(Closure $closure, string $connectionName = '') {
@@ -160,6 +165,19 @@ class MsHttp
         Cache::forget('micro-services');
     }
 
+    public static function refreshCache() : void
+    {
+        self::cache(true);
+    }
+
+    // public static function announceSecretChange(string $secret)
+    // {
+    //     $microserviceMaps = self::cache()->each(function ($microservice) use ($secret) {
+    //         self::post($microservice->name, 'secret-changes', []);
+    //     });
+    //     return self::decodeRequestBody($establish);
+    // }
+
     public static function decodeRequest(bool $establish = false)
     {
         return self::decodeRequestBody($establish);
@@ -183,8 +201,9 @@ class MsHttp
     {
         try {
             request_passed_ssl_configuration();
+            $originMs = self::firstMsBy('origin', self::origin(true));
+            if ((! $establish) && (! $originMs)) return false;
 
-            if ((! $establish) && (! self::cache()->where('origin', self::origin(true))?->first())) return false;
             $decrypted = \openssl_decrypt(
                 request()->all()[0],
                 'aes-256-cbc',
@@ -195,6 +214,7 @@ class MsHttp
             $unserialized = \unserialize($decrypted);
             request()->merge((array) \json_decode(\base64_decode($unserialized)));
             request()->isMethod('get') ? request()->query->remove('0') : request()->request->remove('0');
+            self::setCurrentRequestOriginMs($originMs);
             return true;
         } catch (Exception $exception) {
             return false;
@@ -204,6 +224,11 @@ class MsHttp
     protected static function currentDBConnection()
     {
         return DB::connection()->getPdo()?->getAttribute(\PDO::ATTR_DRIVER_NAME) ?? config('database.default');
+    }
+
+    protected static function setCurrentRequestOriginMs(MicroServiceMap $originMs)
+    {
+        request()->currentRequestMs = $originMs;
     }
 
     protected static function setDBConnection(string|null $dbConnectionName = '')
