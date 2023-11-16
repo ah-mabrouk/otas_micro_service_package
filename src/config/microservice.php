@@ -70,7 +70,7 @@ return [
     | migration sub folder
     |--------------------------------------------------------------------------
     |
-    | Here you should set string value to match the database which will contain
+    | Here you should set string value to match the folder which will contain
     | the microservice migration files if it exists in nested directorey.
     | IF this value is set to an empty string then the microservice
     | migration file will exists in the same default migration
@@ -78,6 +78,7 @@ return [
     |
     */
 
+    # eg: 'migration_sub_folder' => 'microservice/',
     'migration_sub_folder' => 'microservice/',
 
     /*

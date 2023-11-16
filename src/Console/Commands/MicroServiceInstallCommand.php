@@ -106,7 +106,7 @@ class MicroServiceInstallCommand extends Command
 
         $configDatabaseConnectionDriver = config('microservice.db_connection_name');
         if ($configDatabaseConnectionDriver == '') {
-            $this->call('migrate');
+            $this->call('migrate', ['--path' => '/database/migrations/' . config('microservice.migration_sub_folder')]);
             return;
         }
 
