@@ -38,7 +38,7 @@ class MicroServiceServiceProvider extends ServiceProvider
         require_once __DIR__ . '/Helpers/MicroServiceHelperFunctions.php';
 
         $this->registerRoutes();
-        $this->migrationSubFolder = config('microservice.migration_sub_folder');
+        $this->migrationSubFolder = config('microservice.migration_sub_folder') ?? '';
 
         if ($this->app->runningInConsole()) {
 
