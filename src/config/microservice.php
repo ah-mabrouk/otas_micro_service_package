@@ -97,4 +97,18 @@ return [
 
     'db_connection_name' => '',
 
+    /*
+    |--------------------------------------------------------------------------
+    | Package Middleware
+    |--------------------------------------------------------------------------
+    |
+    | Here you can set this value to be true in order to diable middleware effect while development only
+    |
+    | Note that if the application environment is set specifically to 'production' the this key
+    | will be ignored
+    |
+    */
+
+    'disable_package_middleware' => false,
+
 ];
