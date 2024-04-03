@@ -252,7 +252,7 @@ class MsHttp
 
     public static function current()
     {
-        return request()->currentRequestMs ?? MicroServiceMap::testingMicroservice();
+        return request()->currentRequestMs ?? self::testingMicroservice();
     }
 
     public static function testingMicroservice()
