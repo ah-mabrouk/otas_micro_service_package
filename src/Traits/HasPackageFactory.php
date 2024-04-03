@@ -11,9 +11,8 @@ trait HasPackageFactory
 
     protected static function newFactory()
     {
-        $packageNamespace = Str::before(get_called_class(), 'Models\\');
         $modelName = Str::after(get_called_class(), 'Models\\');
-        $factoryClassFullPath = "{$packageNamespace}Database\\Factories\\{$modelName}Factory";
+        $factoryClassFullPath = "Database\\Factories\\{$modelName}Factory";
 
         return $factoryClassFullPath::new();
     }
