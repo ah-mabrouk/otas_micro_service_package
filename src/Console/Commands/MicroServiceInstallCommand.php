@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\File;
+use Database\Seeders\MicroServiceMapsTableSeeder;
 
 class MicroServiceInstallCommand extends Command
 {
@@ -107,6 +108,7 @@ class MicroServiceInstallCommand extends Command
         $configDatabaseConnectionDriver = config('microservice.db_connection_name');
         if ($configDatabaseConnectionDriver == '') {
             $this->call('migrate', ['--path' => '/database/migrations/' . config('microservice.migration_sub_folder')]);
+            $this->seedOneFakeMicroservice();
             return;
         }
 
@@ -120,6 +122,14 @@ class MicroServiceInstallCommand extends Command
                 '--path' => "database/migrations/{$migrationSubFolder}",
             ]
         );
+        $this->seedOneFakeMicroservice();
+
         DB::setDefaultConnection($currentConnectionDriver);
+    }
+
+    private function seedOneFakeMicroservice()
+    {
+        if (! $this->confirm('Do you want to seed one fake microservice?', false)) return;
+        $this->call('db:seed', ['--class' => MicroServiceMapsTableSeeder::class]);
     }
 }

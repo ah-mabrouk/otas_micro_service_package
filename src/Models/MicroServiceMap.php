@@ -3,12 +3,12 @@
 namespace Solutionplus\MicroService\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Solutionplus\MicroService\Traits\HasPackageFactory;
 use Solutionplus\MicroService\Traits\HasTimezoneFields;
 
 class MicroServiceMap extends Model
 {
-    use HasFactory, HasTimezoneFields;
+    use HasPackageFactory, HasTimezoneFields;
 
     protected $fillable = [
         'name',
