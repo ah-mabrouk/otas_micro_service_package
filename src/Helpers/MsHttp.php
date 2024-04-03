@@ -5,6 +5,7 @@ namespace Solutionplus\MicroService\Helpers;
 use Closure;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Solutionplus\MicroService\Models\MicroServiceMap;
@@ -247,5 +248,16 @@ class MsHttp
         }
         DB::purge();
         DB::setDefaultConnection($dbConnectionName);
+    }
+
+    public static function current()
+    {
+        return request()->currentRequestMs ?? MicroServiceMap::testingMicroservice();
+    }
+
+    public static function testingMicroservice()
+    {
+        request()->currentRequestMs = App::environment('production') ? null : MicroServiceMap::first() ?? MicroServiceMap::factory()->create();
+        return request()->currentRequestMs;
     }
 }
