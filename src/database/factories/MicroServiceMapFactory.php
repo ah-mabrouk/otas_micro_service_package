@@ -1,6 +1,6 @@
 <?php
 
-namespace Solutionplus\MicroService\Database\Factories;
+namespace Database\Factories;
 
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
