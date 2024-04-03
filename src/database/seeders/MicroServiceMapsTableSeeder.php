@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Solutionplus\MicroService\Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Solutionplus\MicroService\Models\MicroServiceMap;
