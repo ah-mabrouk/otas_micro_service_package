@@ -50,19 +50,49 @@ class MsHttp
         return config('microservice.secure_requests_only') == 'true' ? 'https://' : 'http://';
     }
 
-    public static function get(string $microserviceName, string $uri, array $params = [])
-    {
-        return self::send('get', $microserviceName, $uri, $params);
+    public static function get(
+        string $microserviceName,
+        string $uri,
+        array $params = [],
+        array $additionalHeaders = []
+    ) {
+        return self::send(
+            method: 'get',
+            microserviceName: $microserviceName,
+            uri: $uri,
+            data: $params,
+            additionalHeaders: $additionalHeaders
+        );
     }
 
-    public static function post(string $microserviceName, string $uri, array $data = [])
-    {
-        return self::send('post', $microserviceName, $uri, $data);
+    public static function post(
+        string $microserviceName,
+        string $uri,
+        array $data = [],
+        array $additionalHeaders = []
+    ) {
+        return self::send(
+            method: 'post',
+            microserviceName: $microserviceName,
+            uri: $uri,
+            data: $data,
+            additionalHeaders: $additionalHeaders
+        );
     }
 
-    public static function put(string $microserviceName, string $uri, array $data = [])
-    {
-        return self::send('put', $microserviceName, $uri, $data);
+    public static function put(
+        string $microserviceName,
+        string $uri,
+        array $data = [],
+        array $additionalHeaders = []
+    ) {
+        return self::send(
+            method: 'put',
+            microserviceName: $microserviceName,
+            uri: $uri,
+            data: $data,
+            additionalHeaders: $additionalHeaders
+        );
     }
 
     // ! need to revision as it has no body to encode or decode
@@ -81,21 +111,34 @@ class MsHttp
             'origin' => self::origin(),
             'secret' => config('microservice.local_secret'),
         ];
-        $response = self::send('post', $microserviceName, 'micro-services', $data, $origin);
+        $response = self::send(
+            method: 'post',
+            microserviceName: $microserviceName,
+            uri: 'micro-services',
+            data: $data,
+            origin: $origin
+        );
         if (isset($response->secret)) {
             self::addNewMicroService($microserviceName, $origin, $response->secret);
         }
         return $response;
     }
 
-    protected static function send(string $method, string $microserviceName, string $uri, array $data = [], string $origin = '')
-    {
+    protected static function send(
+        string $method,
+        string $microserviceName,
+        string $uri,
+        array $data = [],
+        string $origin = '',
+        array $additionalHeaders = []
+    ) {
         $http = new self($microserviceName, $origin);
         $establish = $origin != '';
-        return Http::withHeaders($http->headers($method))->$method(
-            "{$http->protocol}{$http->microservice->origin}/api/{$uri}",
+        return Http::withHeaders($http->headers($method, $additionalHeaders))
+            ->$method(
+                "{$http->protocol}{$http->microservice->origin}/api/{$uri}",
                 $http->encodeRequestBody($data, $establish)
-        );
+            );
     }
 
     protected static function firstMsBy(string $columnName, string|int $value)
@@ -127,7 +170,7 @@ class MsHttp
         return $microService;
     }
 
-    protected function headers(string $method = '')
+    protected function headers(string $method = '', array $additionalHeaders = [])
     {
         $headers = [
             'origin' => self::origin(),
@@ -135,7 +178,7 @@ class MsHttp
             'Authorization' => 'application/json',
         ];
         if ($method == 'put') $headers['_method'] = 'put';
-        return $headers;
+        return \array_merge($headers, $additionalHeaders);
     }
 
     protected static function origin(bool $inbound = false)
