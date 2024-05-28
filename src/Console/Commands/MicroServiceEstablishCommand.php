@@ -49,7 +49,7 @@ class MicroServiceEstablishCommand extends Command
         $response = MsHttp::establish($destinationMicroserviceName, $destinationMicroserviceOrigin);
 
         if (! $response->ok()) {
-            $this->warn('Connection not established!!!');
+            $this->warn('Failed to establish. response code:' . $response->status());
             return Command::FAILURE;
         }
 
