@@ -22,7 +22,7 @@ php artisan ms:install
 ```
 
 #### Important:
-> Don't forget to modify the added env key `GLOBAL_PROJECT_SECRET` to exactly match all other microservices projects `GLOBAL_PROJECT_SECRET` then run:
+> Don't forget to modify the added env key `MS_GLOBAL_PROJECT_SECRET` to exactly match all other microservices projects `MS_GLOBAL_PROJECT_SECRET` then run:
 
 ```bash
 php artisan config:cache
@@ -61,7 +61,7 @@ $response = MsHttp::put($microserviceName, $uri, $data = []);
 
 $response = MsHttp::delete($microserviceName, $uri); // Not finished yet
 
-$response = MsHttp::establish($microserviceName, $origin);
+$response = MsHttp::establish($microserviceName, $origin, $localPort);
 ```
 
 The above methods are must to be used if you need to encrypt requests between micro-services

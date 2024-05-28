@@ -5,10 +5,8 @@ namespace Solutionplus\MicroService;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use Solutionplus\MicroService\Http\Middleware\MicroServiceMiddleware;
 use Solutionplus\MicroService\Console\Commands\MicroServiceInstallCommand;
 use Solutionplus\MicroService\Console\Commands\MicroServiceEstablishCommand;
-use Solutionplus\MicroService\Http\Middleware\MicroServiceEstablishConnectionMiddleware;
 
 class MicroServiceServiceProvider extends ServiceProvider
 {
@@ -67,8 +65,8 @@ class MicroServiceServiceProvider extends ServiceProvider
             ]);
 
             $this->app->make(Router::class)
-                ->aliasMiddleware('micro-service', MicroServiceMiddleware::class)
-                ->aliasMiddleware('micro-service-establish-connection', MicroServiceEstablishConnectionMiddleware::class);
+                ->aliasMiddleware('micro-service', \Solutionplus\MicroService\Http\Middleware\MicroServiceMiddleware::class)
+                ->aliasMiddleware('micro-service-establish-connection', \Solutionplus\MicroService\Http\Middleware\MicroServiceEstablishConnectionMiddleware::class);
         }
     }
 

@@ -40,16 +40,17 @@ class MicroServiceEstablishCommand extends Command
     {
         $destinationMicroserviceName = $this->ask('What is the destination name?');
         $destinationMicroserviceOrigin = $this->ask('What is the destination origin?');
+        $localMicroserviceLocalPort = (int) $this->ask('What is the current micro-service local port if exist? if not just hit "enter"');
 
         if ($destinationMicroserviceName == null || $destinationMicroserviceOrigin == null) {
             $this->warn('Connection not established!!!');
             return Command::FAILURE;
         }
 
-        $response = MsHttp::establish($destinationMicroserviceName, $destinationMicroserviceOrigin);
+        $response = MsHttp::establish($destinationMicroserviceName, $destinationMicroserviceOrigin, $localMicroserviceLocalPort);
 
         if (! $response->ok()) {
-            $this->warn('Failed to establish. response code:' . $response->status());
+            $this->warn('Failed to establish. response_status_code:' . $response->status() . ', response_body: ' . $response->body());
             return Command::FAILURE;
         }
 

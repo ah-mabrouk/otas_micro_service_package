@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Solutionplus\MicroService\Http\Controllers\MicroServiceMapController;
 
 Route::group([
     'prefix' => 'api',

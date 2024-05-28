@@ -95,20 +95,20 @@ class MsHttp
         );
     }
 
-    // ! need to revision as it has no body to encode or decode
+    // ! need to revision as it has no request body to encode or decode
     // public static function delete(string $microserviceName, string $uri)
     // {
     //     return self::send('delete', $microserviceName, $uri);
     // }
 
-    public static function establish(string $microserviceName, string $origin)
+    public static function establish(string $microserviceName, string $origin, int|null $localPort = null)
     {
         if (self::firstMsBy('name', $microserviceName)) abort(503, 'service name already exists');
         if (config('microservice.micro_service_name') == '') abort(503, 'current service name is not set yet in "microservice" config file');
         if (config('microservice.project_secret') == '') abort(503, 'project secret is not set yet in "microservice" config file');
         $data = [
             'name' => config('microservice.micro_service_name'),
-            'origin' => self::origin(),
+            'origin' => self::origin(localPort: $localPort),
             'secret' => config('microservice.local_secret'),
         ];
         $response = self::send(
@@ -118,8 +118,9 @@ class MsHttp
             data: $data,
             origin: $origin
         );
-        if (isset($response->secret)) {
-            self::addNewMicroService($microserviceName, $origin, $response->secret);
+
+        if (isset(((object) $response->json())->secret)) {
+            self::addNewMicroService($microserviceName, $origin, ((object) $response->json())->secret);
         }
         return $response;
     }
@@ -148,7 +149,7 @@ class MsHttp
 
     public static function runOnConnection(Closure $closure, string $connectionName = '') {
         $currentDatabaseConnection = MsHttp::currentDBConnection();
-        if ($connectionName == config('database.default')) return $closure();
+        if (\in_array($connectionName, ['', config('database.default')])) return $closure();
 
         MsHttp::setDBConnection($connectionName);
         $resultOfClosure = $closure();
@@ -165,7 +166,7 @@ class MsHttp
                 'origin' => $origin,
                 'destination_key' => $destinationKey,
             ]);
-        });
+        }, config('microservice.db_connection_name'));
         self::cache(true);
         return $microService;
     }
@@ -181,9 +182,13 @@ class MsHttp
         return \array_merge($headers, $additionalHeaders);
     }
 
-    protected static function origin(bool $inbound = false)
+    protected static function origin(bool $inbound = false, int|null $localPort = null)
     {
         $origin = $inbound ? request()->header('origin') : request()->getSchemeAndHttpHost();
+        if ($localPort && \in_array($origin, ['localhost', '127.0.0.1'])) {
+            $origin = "{$origin}:{$localPort}";
+        }
+
         return \str_replace(['http://', 'https://'], '', $origin);
     }
 
@@ -195,12 +200,12 @@ class MsHttp
                 Cache::rememberForever('micro-services', function () {
                     return self::runOnConnection(function () {
                         return MicroServiceMap::get();
-                    });
+                    }, config('microservice.db_connection_name'));
                 });
             }
             return Cache::has('micro-services') ? Cache::get('micro-services') : self::cache(true);
         } catch (Exception $exception) {
-            abort(503, 'micro-service package is not installed yet or your configuration file is not configured yet. please run "php artisan vendor:publish" and "php artisan ms:install" commands and make sure that you set config file required values');
+            abort(503, 'micro-service package is not installed yet or your configuration file is not configured yet. please run "php artisan vendor:publish" and "php artisan ms:install" commands and make sure that you set config file required values. Exception:' . $exception->getMessage());
         }
     }
 

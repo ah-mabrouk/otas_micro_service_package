@@ -30,7 +30,7 @@ return [
     |
     */
 
-    'project_secret' => env('GLOBAL_PROJECT_SECRET'),
+    'project_secret' => env('MS_GLOBAL_PROJECT_SECRET'),
 
     /*
     |--------------------------------------------------------------------------
@@ -47,7 +47,7 @@ return [
     |
     */
 
-    'local_secret' => env('LOCAL_SECRET'),
+    'local_secret' => env('MS_LOCAL_SECRET'),
 
     /*
     |--------------------------------------------------------------------------
@@ -109,6 +109,6 @@ return [
     |
     */
 
-    'disable_package_middleware' => false,
+    'disable_package_middleware' => env('MS_DISABLE_PACKAGE_MIDDLEWARE'),
 
 ];
