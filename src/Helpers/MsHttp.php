@@ -263,7 +263,7 @@ class MsHttp
             $unserialized = \unserialize($decrypted);
             request()->merge((array) \json_decode(\base64_decode($unserialized)));
             request()->isMethod('get') ? request()->query->remove('0') : request()->request->remove('0');
-            self::setCurrentRequestOriginMs($originMs);
+            if (! $establish) self::setCurrentRequestOriginMs($originMs);
             return true;
         } catch (Exception $exception) {
             return false;
