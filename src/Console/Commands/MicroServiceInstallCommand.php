@@ -67,10 +67,6 @@ class MicroServiceInstallCommand extends Command
         $this->info('Caching configs...');
         $this->call('config:cache');
 
-        $this->info('Running migrate command...');
-
-        $this->runMigration();
-
         return Command::SUCCESS;
     }
 
@@ -99,38 +95,5 @@ class MicroServiceInstallCommand extends Command
         }
         $this->call('vendor:publish', $params);
         $this->info($finishingMessage);
-    }
-
-    private function runMigration()
-    {
-        $this->warn('Make sure to set package configuration before migration or you will need to run this command again');
-        if (! $this->confirm('Do you want to run migrate command now?', false)) return;
-
-        $configDatabaseConnectionDriver = config('microservice.db_connection_name');
-        if ($configDatabaseConnectionDriver == '') {
-            $this->call('migrate', ['--path' => '/database/migrations/' . config('microservice.migration_sub_folder')]);
-            $this->seedOneFakeMicroservice();
-            return;
-        }
-
-        $currentConnectionDriver = DB::connection()->getPdo()?->getAttribute(\PDO::ATTR_DRIVER_NAME) ?? config('database.default');
-        $migrationSubFolder = config('microservice.migration_sub_folder') != '' ? config('microservice.migration_sub_folder') . '/' : '';
-        DB::setDefaultConnection($configDatabaseConnectionDriver);
-        $this->call(
-            'migrate',
-            [
-                '--database' => $configDatabaseConnectionDriver,
-                '--path' => "database/migrations/{$migrationSubFolder}",
-            ]
-        );
-        $this->seedOneFakeMicroservice();
-
-        DB::setDefaultConnection($currentConnectionDriver);
-    }
-
-    private function seedOneFakeMicroservice()
-    {
-        if (! $this->confirm('Do you want to seed one fake microservice?', false)) return;
-        $this->call('db:seed', ['--class' => MicroServiceMapsTableSeeder::class]);
     }
 }
