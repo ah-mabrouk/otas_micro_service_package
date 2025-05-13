@@ -76,7 +76,7 @@ class MicroServiceInstallCommand extends Command
 
     private function appendToEnvContent(string $envKey, string $envKeyValue = '')
     {
-        append_to_env_content($envKey, $envKeyValue);
+        append_to_env_content(envKey: $envKey, envKeyValue: $envKeyValue);
         // $keyPosition = \strpos($this->envContent, "{$envKey}=");
         // $endOfLinePosition = \strpos($this->envContent, "\n", $keyPosition);
         // $oldValue = \substr($this->envContent, $keyPosition, $endOfLinePosition - $keyPosition);

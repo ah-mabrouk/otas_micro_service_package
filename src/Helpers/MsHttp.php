@@ -239,7 +239,7 @@ class MsHttp
                 ],
             );
         });
-        append_to_env_content('MS_LOCAL_SECRET', $secret);
+        append_to_env_content(envKey:'MS_LOCAL_SECRET', envKeyValue: $secret);
         Artisan::call('config:cache');
     }
 
