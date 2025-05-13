@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Artisan;
 use Solutionplus\MicroService\Models\MicroServiceMap;
 
 class MsHttp
@@ -120,7 +121,7 @@ class MsHttp
         );
 
         if (isset(((object) $response->json())->secret)) {
-            self::addNewMicroService($microserviceName, $origin, ((object) $response->json())->secret);
+            self::saveMicroservice($microserviceName, $origin, ((object) $response->json())->secret);
         }
         return $response;
     }
@@ -157,15 +158,21 @@ class MsHttp
         return $resultOfClosure;
     }
 
-    public static function addNewMicroService(string $microserviceName, string $origin, string $destinationKey)
+    public static function saveMicroservice(string $microserviceName, string $origin, string $destinationKey)
     {
         $microService = self::runOnConnection(function () use ($microserviceName, $origin, $destinationKey) {
-            return MicroServiceMap::create([
-                'name' => $microserviceName,
-                'display_name' => \ucfirst(\str_replace(['_', '-'], ' ', $microserviceName)),
-                'origin' => $origin,
-                'destination_key' => $destinationKey,
-            ]);
+            return MicroServiceMap::updateOrCreate(
+                [
+                    'origin' => $origin,
+                    'name' => $microserviceName,
+                ],
+                [
+                    'name' => $microserviceName,
+                    'display_name' => \ucfirst(\str_replace(['_', '-'], ' ', $microserviceName)),
+                    'origin' => $origin,
+                    'destination_key' => $destinationKey,
+                ]
+            );
         }, config('microservice.db_connection_name'));
         self::cache(true);
         return $microService;
@@ -219,13 +226,22 @@ class MsHttp
         self::cache(true);
     }
 
-    // public static function announceSecretChange(string $secret)
-    // {
-    //     $microserviceMaps = self::cache()->each(function ($microservice) use ($secret) {
-    //         self::post($microservice->name, 'secret-changes', []);
-    //     });
-    //     return self::decodeRequestBody($establish);
-    // }
+    public static function announceSecretChange(string $secret): void
+    {
+        self::cache()->each(function ($microservice) use ($secret) {
+            self::post(
+                microserviceName: $microservice->name,
+                uri: 'micro-services',
+                data: [
+                    'name' => config('microservice.micro_service_name'),
+                    'origin' => self::origin(),
+                    'secret' => $secret,
+                ],
+            );
+        });
+        append_to_env_content('MS_LOCAL_SECRET', $secret);
+        Artisan::call('config:cache');
+    }
 
     public static function decodeRequest(bool $establish = false)
     {
