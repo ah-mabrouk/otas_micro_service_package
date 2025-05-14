@@ -167,9 +167,7 @@ class MsHttp
                     'name' => $microserviceName,
                 ],
                 [
-                    'name' => $microserviceName,
                     'display_name' => \ucfirst(\str_replace(['_', '-'], ' ', $microserviceName)),
-                    'origin' => $origin,
                     'destination_key' => $destinationKey,
                 ]
             );
