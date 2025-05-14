@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Solutionplus\MicroService\Console\Commands\MicroServiceInstallCommand;
 use Solutionplus\MicroService\Console\Commands\MicroServiceEstablishCommand;
+use Solutionplus\MicroService\Console\Commands\MicroserviceSecretUpdateCommand;
 
 class MicroServiceServiceProvider extends ServiceProvider
 {
@@ -43,6 +44,7 @@ class MicroServiceServiceProvider extends ServiceProvider
             $this->commands([
                 MicroServiceInstallCommand::class,
                 MicroServiceEstablishCommand::class,
+                MicroserviceSecretUpdateCommand::class,
             ]);
 
             /**
