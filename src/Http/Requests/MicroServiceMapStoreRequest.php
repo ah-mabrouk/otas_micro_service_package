@@ -35,6 +35,6 @@ class MicroServiceMapStoreRequest extends FormRequest
 
     public function storeMicroServiceMap()
     {
-        return MsHttp::addNewMicroService($this->name, $this->origin, $this->secret);
+        return MsHttp::saveMicroservice($this->name, $this->origin, $this->secret);
     }
 }
