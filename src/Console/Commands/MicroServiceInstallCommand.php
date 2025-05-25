@@ -74,16 +74,13 @@ class MicroServiceInstallCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function appendToEnvContent(string $envKey, string $envKeyValue = '')
+    private function appendToEnvContent(string $envKey, string $envKeyValue = ''): void
     {
-        append_to_env_content(envKey: $envKey, envKeyValue: $envKeyValue);
-        // $keyPosition = \strpos($this->envContent, "{$envKey}=");
-        // $endOfLinePosition = \strpos($this->envContent, "\n", $keyPosition);
-        // $oldValue = \substr($this->envContent, $keyPosition, $endOfLinePosition - $keyPosition);
-        // $envKeyValue = $keyPosition ? \explode('=', $oldValue)[1] : $envKeyValue;
-        // $this->envContent = ($keyPosition && $endOfLinePosition && $oldValue)
-        //                     ? \str_replace($oldValue, "{$envKey}={$envKeyValue}", $this->envContent)
-        //                     : $this->envContent . "{$envKey}={$envKeyValue}\n";
+        $this->envContent = append_to_env_content(
+            envContent: $this->envContent, 
+            envKey: $envKey, 
+            envKeyValue: $envKeyValue
+        );
     }
 
     private function publishConfiguration()

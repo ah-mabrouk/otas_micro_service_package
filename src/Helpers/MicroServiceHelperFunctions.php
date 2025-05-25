@@ -21,17 +21,14 @@ if (! function_exists('request_passed_ssl_configuration')) {
 }
 
 if (! function_exists('append_to_env_content')) {
-    function append_to_env_content(string $envKey, string $envKeyValue = '')
+    function append_to_env_content(string $envContent, string $envKey, string $envKeyValue = '')
     {
-        $envFile = app()->environmentFilePath();
-        $envContent = \file_get_contents($envFile) . "\n";
-
         $keyPosition = \strpos($envContent, "{$envKey}=");
         $endOfLinePosition = \strpos($envContent, "\n", $keyPosition);
         $oldValue = \substr($envContent, $keyPosition, $endOfLinePosition - $keyPosition);
-        $envKeyValue = $keyPosition ? \explode('=', $oldValue)[1] : $envKeyValue;
-        $envContent = ($keyPosition && $endOfLinePosition && $oldValue)
+
+        return ($keyPosition && $endOfLinePosition && $oldValue)
                             ? \str_replace($oldValue, "{$envKey}={$envKeyValue}", $envContent)
-                            : $envContent . "{$envKey}={$envKeyValue}";
+                            : $envContent . "{$envKey}={$envKeyValue}\n";
     }
 }
