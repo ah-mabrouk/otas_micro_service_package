@@ -42,10 +42,10 @@ class MicroServiceInstallCommand extends Command
         $this->envContent = \file_get_contents($this->envFile);
         $this->envContent .= "\n";
         $this->envKeys = [
-            'MS_SECURE_REQUESTS_ONLY' => $this->appendToEnvContent('MS_SECURE_REQUESTS_ONLY', '"true"'),
+            'MS_SECURE_REQUESTS_ONLY' => $this->appendToEnvContent('MS_SECURE_REQUESTS_ONLY', 'true'),
             'MS_GLOBAL_PROJECT_SECRET' => $this->appendToEnvContent('MS_GLOBAL_PROJECT_SECRET', ''),
-            'MS_LOCAL_SECRET' => $this->appendToEnvContent('MS_LOCAL_SECRET', generate_local_secret(16)),
-            'MS_DISABLE_PACKAGE_MIDDLEWARE' => $this->appendToEnvContent('MS_DISABLE_PACKAGE_MIDDLEWARE', '"true"'),
+            'MS_LOCAL_SECRET' => $this->appendToEnvContent('MS_LOCAL_SECRET', '"' . generate_local_secret(16) . '"'),
+            'MS_DISABLE_PACKAGE_MIDDLEWARE' => $this->appendToEnvContent('MS_DISABLE_PACKAGE_MIDDLEWARE', 'true'),
         ];
     }
 
