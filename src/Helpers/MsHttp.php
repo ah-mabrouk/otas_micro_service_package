@@ -241,11 +241,7 @@ class MsHttp
         $envFile = App::environmentFilePath();
         $envContent = \file_get_contents($envFile);
 
-        $envContent = append_to_env_content(
-            envContent: $envContent, 
-            envKey: 'MS_LOCAL_SECRET', 
-            envKeyValue: $secret
-        );
+        $envContent = change_env_key_value(envContent: $envContent, envKey: 'MS_LOCAL_SECRET', envKeyValue: $secret);
 
         \file_put_contents($envFile, $envContent);
 

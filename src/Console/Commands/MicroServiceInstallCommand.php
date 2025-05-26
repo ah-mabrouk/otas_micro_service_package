@@ -76,11 +76,7 @@ class MicroServiceInstallCommand extends Command
 
     private function appendToEnvContent(string $envKey, string $envKeyValue = ''): void
     {
-        $this->envContent = append_to_env_content(
-            envContent: $this->envContent, 
-            envKey: $envKey, 
-            envKeyValue: $envKeyValue
-        );
+        $this->envContent = append_to_env_content(envContent: $this->envContent, envKey: $envKey, envKeyValue: $envKeyValue);
     }
 
     private function publishConfiguration()
