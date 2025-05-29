@@ -237,7 +237,14 @@ class MsHttp
                 ],
             );
         });
-        append_to_env_content(envKey:'MS_LOCAL_SECRET', envKeyValue: $secret);
+        
+        $envFile = App::environmentFilePath();
+        $envContent = \file_get_contents($envFile);
+
+        $envContent = change_env_key_value(envContent: $envContent, envKey: 'MS_LOCAL_SECRET', envKeyValue: $secret);
+
+        \file_put_contents($envFile, $envContent);
+
         Artisan::call('config:cache');
     }
 
@@ -274,8 +281,8 @@ class MsHttp
                 0,
                 $establish ? config('microservice.project_secret') : config('microservice.local_secret')
             );
-            $unserialized = \unserialize($decrypted);
-            request()->merge((array) \json_decode(\base64_decode($unserialized)));
+            $unSerialized = \unserialize($decrypted);
+            request()->merge((array) \json_decode(\base64_decode($unSerialized), true));
             request()->isMethod('get') ? request()->query->remove('0') : request()->request->remove('0');
             if (! $establish) self::setCurrentRequestOriginMs($originMs);
             return true;
