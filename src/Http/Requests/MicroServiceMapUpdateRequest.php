@@ -25,8 +25,6 @@ class MicroServiceMapUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|alpha_dash:ascii|min:3|max:190|exists:micro_service_maps,name',
-            'origin' => 'required|string|min:6|max:190|exists:micro_service_maps,origin',
             'secret' => 'required|string|alpha_num:ascii|size:16|unique:micro_service_maps,destination_key',
         ];
     }
@@ -34,8 +32,8 @@ class MicroServiceMapUpdateRequest extends FormRequest
     public function storeMicroServiceMap()
     {
         return MsHttp::saveMicroservice(
-            microserviceName: $this->name, 
-            origin: $this->origin, 
+            microserviceName: $this->micro_service->name, 
+            origin: $this->micro_service->origin, 
             destinationKey: $this->secret
         );
     }
