@@ -229,7 +229,7 @@ class MsHttp
         self::cache()->each(function ($microservice) use ($secret) {
             self::put(
                 microserviceName: $microservice->name,
-                uri: 'update-microservice-secret',
+                uri: 'micro-services/' . $microservice->id,
                 data: [
                     'secret' => $secret,
                 ],
