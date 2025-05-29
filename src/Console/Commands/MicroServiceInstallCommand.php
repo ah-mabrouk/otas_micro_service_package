@@ -42,10 +42,10 @@ class MicroServiceInstallCommand extends Command
         $this->envContent = \file_get_contents($this->envFile);
         $this->envContent .= "\n";
         $this->envKeys = [
-            'MS_SECURE_REQUESTS_ONLY' => $this->appendToEnvContent('MS_SECURE_REQUESTS_ONLY', '"true"'),
+            'MS_SECURE_REQUESTS_ONLY' => $this->appendToEnvContent('MS_SECURE_REQUESTS_ONLY', 'true'),
             'MS_GLOBAL_PROJECT_SECRET' => $this->appendToEnvContent('MS_GLOBAL_PROJECT_SECRET', ''),
-            'MS_LOCAL_SECRET' => $this->appendToEnvContent('MS_LOCAL_SECRET', generate_local_secret(16)),
-            'MS_DISABLE_PACKAGE_MIDDLEWARE' => $this->appendToEnvContent('MS_DISABLE_PACKAGE_MIDDLEWARE', '"true"'),
+            'MS_LOCAL_SECRET' => $this->appendToEnvContent('MS_LOCAL_SECRET', '"' . generate_local_secret(16) . '"'),
+            'MS_DISABLE_PACKAGE_MIDDLEWARE' => $this->appendToEnvContent('MS_DISABLE_PACKAGE_MIDDLEWARE', 'true'),
         ];
     }
 
@@ -74,16 +74,9 @@ class MicroServiceInstallCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function appendToEnvContent(string $envKey, string $envKeyValue = '')
+    private function appendToEnvContent(string $envKey, string $envKeyValue = ''): void
     {
-        append_to_env_content(envKey: $envKey, envKeyValue: $envKeyValue);
-        // $keyPosition = \strpos($this->envContent, "{$envKey}=");
-        // $endOfLinePosition = \strpos($this->envContent, "\n", $keyPosition);
-        // $oldValue = \substr($this->envContent, $keyPosition, $endOfLinePosition - $keyPosition);
-        // $envKeyValue = $keyPosition ? \explode('=', $oldValue)[1] : $envKeyValue;
-        // $this->envContent = ($keyPosition && $endOfLinePosition && $oldValue)
-        //                     ? \str_replace($oldValue, "{$envKey}={$envKeyValue}", $this->envContent)
-        //                     : $this->envContent . "{$envKey}={$envKeyValue}\n";
+        $this->envContent = append_to_env_content(envContent: $this->envContent, envKey: $envKey, envKeyValue: $envKeyValue);
     }
 
     private function publishConfiguration()

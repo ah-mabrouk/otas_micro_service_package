@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Log;
+
 if (! function_exists('generate_local_secret')) {
     function generate_local_secret($length = 10, $intOnly = false, $prefix = null) {
         if (\strlen($prefix) > $length) abort(500, 'wrong helper function usage from backend');
@@ -21,17 +23,27 @@ if (! function_exists('request_passed_ssl_configuration')) {
 }
 
 if (! function_exists('append_to_env_content')) {
-    function append_to_env_content(string $envKey, string $envKeyValue = '')
+    function append_to_env_content(string $envContent, string $envKey, string $envKeyValue = '')
     {
-        $envFile = app()->environmentFilePath();
-        $envContent = \file_get_contents($envFile) . "\n";
+        $keyPosition = \strpos($envContent, "{$envKey}=");
 
+        if ($keyPosition) {
+            return change_env_key_value(envContent: $envContent, envKey: $envKey, envKeyValue: $envKeyValue);
+        }
+
+        return $envContent . "{$envKey}={$envKeyValue}\n";
+    }
+}
+
+if (! function_exists('change_env_key_value')) {
+    function change_env_key_value(string $envContent, string $envKey, string $envKeyValue = '')
+    {
         $keyPosition = \strpos($envContent, "{$envKey}=");
         $endOfLinePosition = \strpos($envContent, "\n", $keyPosition);
         $oldValue = \substr($envContent, $keyPosition, $endOfLinePosition - $keyPosition);
-        $envKeyValue = $keyPosition ? \explode('=', $oldValue)[1] : $envKeyValue;
-        $envContent = ($keyPosition && $endOfLinePosition && $oldValue)
-                            ? \str_replace($oldValue, "{$envKey}={$envKeyValue}", $envContent)
-                            : $envContent . "{$envKey}={$envKeyValue}";
+
+        return ($keyPosition && $endOfLinePosition && $oldValue)
+            ? \str_replace($oldValue, "{$envKey}={$envKeyValue}", $envContent)
+            : append_to_env_content(envContent: $envContent, envKey: $envKey, envKeyValue: $envKeyValue);
     }
 }
