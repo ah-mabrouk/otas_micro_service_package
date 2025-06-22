@@ -227,12 +227,10 @@ class MsHttp
     public static function announceSecretChange(string $secret): void
     {
         self::cache()->each(function ($microservice) use ($secret) {
-            self::post(
+            self::put(
                 microserviceName: $microservice->name,
-                uri: 'micro-services',
+                uri: 'micro-services/' . $microservice->id,
                 data: [
-                    'name' => config('microservice.micro_service_name'),
-                    'origin' => self::origin(),
                     'secret' => $secret,
                 ],
             );
